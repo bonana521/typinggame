@@ -6,13 +6,22 @@
 
 这是一个创新的打字练习游戏，将传统的打字练习与追逐游戏相结合。玩家可以选择扮演逃跑者或追逐者，通过打字速度来控制角色移动，增加游戏的趣味性和挑战性。
 
+### 🎮 线上游玩
+
+[![在线游玩](https://img.shields.io/badge/在线游玩-点击游玩-brightgreen)](https://bonana521.github.io/typinggame/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-部署成功-blue)](https://bonana521.github.io/typinggame/)
+
+👉 **直接点击链接开始游戏**: [https://bonana521.github.io/typinggame/](https://bonana521.github.io/typinggame/)
+
 ### 游戏特色
 
+- 🌐 **线上游玩**：支持浏览器直接访问，无需下载
 - 🎮 **双角色系统**：可以选择逃跑者或追逐者角色
 - 🎯 **难度选择**：提供简单、中等、困难三个难度等级
 - ⚡ **实时反馈**：实时显示打字速度(WPM)和准确率
 - 🏃 **动态追逐**：角色根据打字速度进行移动
 - 🎨 **现代UI**：简洁美观的用户界面设计
+- 📱 **响应式设计**：支持桌面和移动设备
 
 ## 游戏规则
 
@@ -55,16 +64,25 @@ typing-game/
 └── README.md           # 项目说明
 ```
 
-## 如何开始
+## 🚀 如何开始
 
-### 在线游玩
-直接在浏览器中打开 `index.html` 文件即可开始游戏。
+### 🌐 线上游玩 (推荐)
+1. **直接访问**: [https://bonana521.github.io/typinggame/](https://bonana521.github.io/typinggame/)
+2. 选择难度和角色
+3. 开始游戏！
 
-### 本地运行
+### 💻 本地运行
 1. 克隆或下载项目文件
+   ```bash
+   git clone https://github.com/bonana521/typinggame.git
+   cd typinggame
+   ```
 2. 在浏览器中打开 `index.html`
 3. 选择难度和角色
 4. 开始游戏！
+
+### 📱 移动设备
+游戏支持响应式设计，可以直接在手机或平板浏览器上游玩。
 
 ## 游戏操作
 
@@ -89,18 +107,38 @@ typing-game/
 - 流畅的动画效果
 - 直观的进度显示
 
-## 更新历史
+## 🚀 部署信息
+
+- **平台**: GitHub Pages
+- **域名**: https://bonana521.github.io/typinggame/
+- **状态**: 已部署 ✅
+- **访问**: 公开访问，无需账号
+
+### 部署特点
+- 🌍 全球CDN加速
+- 📱 移动设备友好
+- 🔒 HTTPS安全连接
+- ⚡ 自动部署更新
+- 💰 免费托管
+
+## 📋 更新历史
+
+### v1.2.0 - 2024年最新版本
+- 🌐 **新增GitHub Pages部署**
+- 📱 **优化移动端体验**
+- 🎨 **界面美化升级**
+- 📖 **完善README文档**
+
+### v1.1.0
+- 界面优化
+- 动画效果增强
+- 用户体验改进
 
 ### v1.0.0
 - 基础游戏功能实现
 - 双角色系统
 - 难度选择功能
 - 实时统计功能
-
-### v1.1.0
-- 界面优化
-- 动画效果增强
-- 用户体验改进
 
 ## 贡献
 
