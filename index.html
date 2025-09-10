@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打字追逐游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏开始界面 -->
+        <div id="startScreen" class="screen">
+            <h1>打字追逐游戏</h1>
+            
+            <div class="difficulty-select">
+                <h2>选择难度</h2>
+                <div class="difficulty-options">
+                    <button class="difficulty-btn" data-difficulty="easy">
+                        <div class="difficulty-icon">🟢</div>
+                        <h3>简单</h3>
+                        <p>短句子，适合新手</p>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="medium">
+                        <div class="difficulty-icon">🟡</div>
+                        <h3>中等</h3>
+                        <p>中等长度句子</p>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="hard">
+                        <div class="difficulty-icon">🔴</div>
+                        <h3>困难</h3>
+                        <p>长句子，挑战极限</p>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="character-select">
+                <h2>选择你的角色</h2>
+                <div class="character-options">
+                    <button class="character-btn" data-role="runner">
+                        <div class="character-icon">🏃</div>
+                        <h3>逃跑者</h3>
+                        <p>在被抓到前到达终点</p>
+                    </button>
+                    <button class="character-btn" data-role="chaser">
+                        <div class="character-icon">👮</div>
+                        <h3>追逐者</h3>
+                        <p>在逃跑者到达终点前抓住他</p>
+                    </button>
+                </div>
+            </div>
+            
+            <button id="startBtn" class="primary-btn" disabled>开始游戏</button>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-area">
+                <div class="game-map">
+                    <!-- 简单的2D地图 -->
+                    <div class="track">
+                        <div class="character" id="runner">
+                            <div class="character-sprite">🏃</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="runnerProgress"></div>
+                            </div>
+                            <div class="character-label">逃跑者</div>
+                        </div>
+                        <div class="character" id="chaser">
+                            <div class="character-sprite">👮</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="chaserProgress"></div>
+                            </div>
+                            <div class="character-label">追逐者</div>
+                        </div>
+                        <div class="finish-line">🏁</div>
+                    </div>
+                </div>
+                
+                <!-- 距离显示 -->
+                <div class="distance-info">
+                    <div class="distance-item">
+                        <span>距离: </span>
+                        <span id="distanceValue">100m</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-area">
+                <div class="target-text" id="targetText">
+                    点击开始显示要输入的文字
+                </div>
+                <input type="text" id="typingInput" class="typing-input" placeholder="在这里输入..." disabled>
+                <div class="typing-stats">
+                    <span>速度: <span id="wpm">0</span> WPM</span>
+                    <span>准确率: <span id="accuracy">100</span>%</span>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <div class="role-info">
+                    你的角色: <span id="playerRole">-</span>
+                </div>
+                <div class="game-status">
+                    状态: <span id="gameStatus">准备开始</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏结束界面 -->
+        <div id="endScreen" class="screen hidden">
+            <div class="result">
+                <h2 id="resultTitle">游戏结束</h2>
+                <p id="resultMessage">结果信息</p>
+                <div class="final-stats">
+                    <h3>最终统计</h3>
+                    <p>最终速度: <span id="finalWpm">0</span> WPM</p>
+                    <p>平均准确率: <span id="finalAccuracy">0</span>%</p>
+                    <p>游戏时间: <span id="gameTime">0</span> 秒</p>
+                </div>
+            </div>
+            <div class="end-buttons">
+                <button id="restartBtn" class="primary-btn">重新开始</button>
+                <button id="menuBtn" class="secondary-btn">返回主菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

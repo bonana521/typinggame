@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试版本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-area {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .game-map {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .character-2d {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+        
+        .character-sprite-2d {
+            font-size: 2.5em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        #runner2d {
+            top: 30%;
+            left: 10%;
+            background: rgba(255, 255, 0, 0.3);
+            border-radius: 50%;
+        }
+        
+        #chaser2d {
+            top: 70%;
+            left: 5%;
+            background: rgba(255, 0, 0, 0.3);
+            border-radius: 50%;
+        }
+        
+        .finish-area {
+            position: absolute;
+            top: 50%;
+            right: 5%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            background: rgba(255, 255, 255, 0.9);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>打字追逐游戏 - 调试版本</h1>
+    
+    <div class="test-area">
+        <h2>测试区域</h2>
+        <div class="game-map">
+            <div class="character-2d" id="runner2d">
+                <div class="character-sprite-2d">🏃</div>
+            </div>
+            <div class="character-2d" id="chaser2d">
+                <div class="character-sprite-2d">👮</div>
+            </div>
+            <div class="finish-area">🏁</div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="testInput" placeholder="输入测试文字" value="测试">
+            <button onclick="testTyping()">测试打字完成</button>
+            <button onclick="testRunnerMove()">测试逃跑者移动</button>
+            <button onclick="testChaserMove()">测试追逐者移动</button>
+            <button onclick="resetPositions()">重置位置</button>
+        </div>
+        
+        <div class="info">
+            <h3>调试信息</h3>
+            <div id="debugInfo">等待测试...</div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟游戏状态
+        let gameState = {
+            selectedRole: 'runner',
+            selectedDifficulty: 'medium',
+            runnerPosition: { x: 10, y: 30 },
+            chaserPosition: { x: 5, y: 70 },
+            finishPosition: { x: 85, y: 50 },
+            currentText: '测试',
+            typedText: '',
+            wpm: 60
+        };
+
+        const difficultySettings = {
+            easy: { timeLimit: 20, speedMultiplier: 1.2 },
+            medium: { timeLimit: 15, speedMultiplier: 1.0 },
+            hard: { timeLimit: 12, speedMultiplier: 0.8 }
+        };
+
+        function updateDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.innerHTML += '<br>' + message;
+            console.log(message);
+        }
+
+        function testTyping() {
+            const input = document.getElementById('testInput').value;
+            gameState.typedText = input;
+            gameState.currentText = '测试';
+            
+            updateDebugInfo(`输入文字: "${input}"`);
+            updateDebugInfo(`目标文字: "${gameState.currentText}"`);
+            updateDebugInfo(`是否匹配: ${input === gameState.currentText}`);
+            
+            if (input === gameState.currentText) {
+                updateDebugInfo('文字匹配完成，调用移动逻辑');
+                onTextComplete();
+            }
+        }
+
+        function onTextComplete() {
+            updateDebugInfo('=== onTextComplete 开始 ===');
+            updateDebugInfo(`当前角色: ${gameState.selectedRole}`);
+            updateDebugInfo(`WPM: ${gameState.wpm}`);
+            
+            const difficulty = difficultySettings[gameState.selectedDifficulty];
+            const speedBonus = Math.max(1, gameState.wpm / 20) * difficulty.speedMultiplier;
+            
+            updateDebugInfo(`难度: ${gameState.selectedDifficulty}`);
+            updateDebugInfo(`速度加成: ${speedBonus}`);
+            
+            if (gameState.selectedRole === 'runner') {
+                updateDebugInfo('逃跑者移动前位置: ' + JSON.stringify(gameState.runnerPosition));
+                
+                const direction = {
+                    x: gameState.finishPosition.x - gameState.runnerPosition.x,
+                    y: gameState.finishPosition.y - gameState.runnerPosition.y
+                };
+                const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+                
+                updateDebugInfo(`方向向量: (${direction.x}, ${direction.y})`);
+                updateDebugInfo(`方向长度: ${length}`);
+                
+                if (length > 0) {
+                    gameState.runnerPosition.x += (direction.x / length) * speedBonus;
+                    gameState.runnerPosition.y += (direction.y / length) * speedBonus;
+                }
+                
+                updateDebugInfo('逃跑者移动后位置: ' + JSON.stringify(gameState.runnerPosition));
+            } else {
+                updateDebugInfo('追逐者移动前位置: ' + JSON.stringify(gameState.chaserPosition));
+                
+                const direction = {
+                    x: gameState.runnerPosition.x - gameState.chaserPosition.x,
+                    y: gameState.runnerPosition.y - gameState.chaserPosition.y
+                };
+                const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+                
+                if (length > 0) {
+                    gameState.chaserPosition.x += (direction.x / length) * speedBonus;
+                    gameState.chaserPosition.y += (direction.y / length) * speedBonus;
+                }
+                
+                updateDebugInfo('追逐者移动后位置: ' + JSON.stringify(gameState.chaserPosition));
+            }
+            
+            updateDebugInfo('更新2D位置...');
+            update2DPositions();
+            updateDebugInfo('=== onTextComplete 结束 ===');
+        }
+
+        function update2DPositions() {
+            updateDebugInfo('--- update2DPositions 开始 ---');
+            updateDebugInfo('逃跑者位置: ' + JSON.stringify(gameState.runnerPosition));
+            updateDebugInfo('追逐者位置: ' + JSON.stringify(gameState.chaserPosition));
+            
+            // 限制位置范围
+            gameState.runnerPosition.x = Math.max(0, Math.min(90, gameState.runnerPosition.x));
+            gameState.runnerPosition.y = Math.max(10, Math.min(90, gameState.runnerPosition.y));
+            gameState.chaserPosition.x = Math.max(0, Math.min(90, gameState.chaserPosition.x));
+            gameState.chaserPosition.y = Math.max(10, Math.min(90, gameState.chaserPosition.y));
+            
+            // 更新2D角色位置
+            const runnerElement = document.getElementById('runner2d');
+            const chaserElement = document.getElementById('chaser2d');
+            
+            if (runnerElement) {
+                runnerElement.style.left = `${gameState.runnerPosition.x}%`;
+                runnerElement.style.top = `${gameState.runnerPosition.y}%`;
+                updateDebugInfo(`设置逃跑者DOM位置: ${gameState.runnerPosition.x}%, ${gameState.runnerPosition.y}%`);
+            } else {
+                updateDebugInfo('错误: 找不到runner2d元素');
+            }
+            
+            if (chaserElement) {
+                chaserElement.style.left = `${gameState.chaserPosition.x}%`;
+                chaserElement.style.top = `${gameState.chaserPosition.y}%`;
+                updateDebugInfo(`设置追逐者DOM位置: ${gameState.chaserPosition.x}%, ${gameState.chaserPosition.y}%`);
+            } else {
+                updateDebugInfo('错误: 找不到chaser2d元素');
+            }
+            
+            updateDebugInfo('--- update2DPositions 结束 ---');
+        }
+
+        function testRunnerMove() {
+            updateDebugInfo('手动测试逃跑者移动');
+            gameState.runnerPosition.x += 5;
+            gameState.runnerPosition.y += 2;
+            update2DPositions();
+        }
+
+        function testChaserMove() {
+            updateDebugInfo('手动测试追逐者移动');
+            gameState.chaserPosition.x += 3;
+            gameState.chaserPosition.y += 1;
+            update2DPositions();
+        }
+
+        function resetPositions() {
+            updateDebugInfo('重置所有位置');
+            gameState.runnerPosition = { x: 10, y: 30 };
+            gameState.chaserPosition = { x: 5, y: 70 };
+            update2DPositions();
+            document.getElementById('debugInfo').innerHTML = '位置已重置<br>';
+        }
+
+        // 初始化
+        updateDebugInfo('调试版本已加载');
+        updateDebugInfo('当前角色: ' + gameState.selectedRole);
+    </script>
+</body>
+</html>
