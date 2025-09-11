@@ -210,13 +210,17 @@ class TypingChaseGame {
     
     onTextComplete() {
         // 确保WPM有有效值
-        const speed = Math.max(1, (this.gameState.wpm || 0) / 20);
+        const playerSpeed = Math.max(1, (this.gameState.wpm || 0) / 20);
         
+        // 玩家移动
         if (this.gameState.selectedRole === 'runner') {
-            this.gameState.runnerPosition += speed * 5;
+            this.gameState.runnerPosition += playerSpeed * 5;
         } else {
-            this.gameState.chaserPosition += speed * 5;
+            this.gameState.chaserPosition += playerSpeed * 5;
         }
+        
+        // NPC移动（自动追逐/逃跑机制）
+        this.moveNPC();
         
         // 重置输入统计
         this.gameState.correctChars = 0;
@@ -227,6 +231,38 @@ class TypingChaseGame {
         
         if (this.gameState.isPlaying) {
             this.generateNewText();
+        }
+    }
+    
+    moveNPC() {
+        // NPC基础速度（比玩家稍慢，让游戏有挑战性）
+        const npcBaseSpeed = 1.5;
+        
+        if (this.gameState.selectedRole === 'runner') {
+            // 玩家是逃跑者，NPC是追逐者，自动追逐
+            const distance = this.gameState.runnerPosition - this.gameState.chaserPosition;
+            if (distance > 0) {
+                // 追逐者向逃跑者移动
+                const chaseSpeed = Math.min(npcBaseSpeed, distance * 0.3);
+                this.gameState.chaserPosition += chaseSpeed;
+            }
+        } else {
+            // 玩家是追逐者，NPC是逃跑者，自动逃跑
+            const distance = this.gameState.runnerPosition - this.gameState.chaserPosition;
+            if (distance < 20) { // 如果距离太近，逃跑者加速逃跑
+                const escapeSpeed = npcBaseSpeed * 1.2;
+                this.gameState.runnerPosition += escapeSpeed;
+            } else {
+                // 保持一定距离逃跑
+                this.gameState.runnerPosition += npcBaseSpeed * 0.8;
+            }
+        }
+        
+        // 确保NPC不超出边界
+        if (this.gameState.selectedRole === 'runner') {
+            this.gameState.chaserPosition = Math.max(5, Math.min(95, this.gameState.chaserPosition));
+        } else {
+            this.gameState.runnerPosition = Math.max(5, Math.min(95, this.gameState.runnerPosition));
         }
     }
     
@@ -278,10 +314,23 @@ class TypingChaseGame {
         this.gameState.runnerPosition = Math.min(this.gameState.runnerPosition, 100);
         this.gameState.chaserPosition = Math.min(this.gameState.chaserPosition, 100);
         
+        // 检查是否到达终点
         if (this.gameState.runnerPosition >= this.gameState.targetPosition) {
             this.endGame(this.gameState.selectedRole === 'runner' ? 'win' : 'lose');
-        } else if (this.gameState.chaserPosition >= this.gameState.runnerPosition) {
+            return;
+        }
+        
+        // 检查是否被抓住（追逐者追上逃跑者）
+        const distance = Math.abs(this.gameState.runnerPosition - this.gameState.chaserPosition);
+        if (distance < 3) { // 距离小于3%算作抓住
             this.endGame(this.gameState.selectedRole === 'chaser' ? 'win' : 'lose');
+            return;
+        }
+        
+        // 检查是否超出时间限制（可选的安全机制）
+        const gameTime = (Date.now() - this.gameState.startTime) / 1000;
+        if (gameTime > 300) { // 5分钟时间限制
+            this.endGame('timeout');
         }
     }
     
@@ -300,6 +349,9 @@ class TypingChaseGame {
         if (result === 'win') {
             this.elements.resultTitle.textContent = '恭喜你赢了！';
             this.elements.resultMessage.textContent = this.gameState.selectedRole === 'runner' ? '你成功到达了终点！' : '你成功抓住了逃跑者！';
+        } else if (result === 'timeout') {
+            this.elements.resultTitle.textContent = '时间到！';
+            this.elements.resultMessage.textContent = '游戏时间已结束，平局！';
         } else {
             this.elements.resultTitle.textContent = '游戏结束';
             this.elements.resultMessage.textContent = this.gameState.selectedRole === 'runner' ? '你被抓住了！' : '逃跑者到达了终点！';

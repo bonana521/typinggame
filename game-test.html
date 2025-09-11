@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏逻辑测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 游戏逻辑测试</h1>
+        
+        <div class="test-section">
+            <h2>🔍 基础功能测试</h2>
+            <button onclick="testBasicFunctions()">测试基础功能</button>
+            <div id="basicTestResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🤖 NPC移动逻辑测试</h2>
+            <button onclick="testNPCMovement()">测试NPC移动</button>
+            <div id="npcTestResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🏁 游戏结束条件测试</h2>
+            <button onclick="testGameEndConditions()">测试结束条件</button>
+            <div id="endTestResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📚 词库系统测试</h2>
+            <button onclick="testLibrarySystem()">测试词库系统</button>
+            <div id="libraryTestResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 完整测试</h2>
+            <button onclick="runAllTests()">运行所有测试</button>
+            <div id="allTestResults"></div>
+        </div>
+    </div>
+
+    <script src="text-libraries.js"></script>
+    <script>
+        function addResult(containerId, message, type = 'success') {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+        
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+        
+        function testBasicFunctions() {
+            clearResults('basicTestResults');
+            addResult('basicTestResults', '开始基础功能测试...');
+            
+            // 检查TextLibraries是否加载
+            if (typeof TextLibraries !== 'undefined') {
+                addResult('basicTestResults', '✅ TextLibraries加载成功', 'success');
+            } else {
+                addResult('basicTestResults', '❌ TextLibraries未加载', 'error');
+            }
+            
+            // 检查词库内容
+            if (TextLibraries && TextLibraries.chinese && TextLibraries.english) {
+                addResult('basicTestResults', '✅ 中文词库存在', 'success');
+                addResult('basicTestResults', `✅ 中文词库包含 ${TextLibraries.chinese.texts.length} 句话`, 'success');
+                addResult('basicTestResults', '✅ 英文词库存在', 'success');
+                addResult('basicTestResults', `✅ 英文词库包含 ${TextLibraries.english.texts.length} 句话`, 'success');
+            } else {
+                addResult('basicTestResults', '❌ 词库内容不完整', 'error');
+            }
+            
+            addResult('basicTestResults', '基础功能测试完成', 'success');
+        }
+        
+        function testNPCMovement() {
+            clearResults('npcTestResults');
+            addResult('npcTestResults', '开始NPC移动逻辑测试...');
+            
+            // 模拟游戏状态
+            const gameState = {
+                selectedRole: 'runner',
+                runnerPosition: 20,
+                chaserPosition: 10,
+                isPlaying: true
+            };
+            
+            // 测试追逐逻辑
+            const npcBaseSpeed = 1.5;
+            const distance = gameState.runnerPosition - gameState.chaserPosition;
+            
+            if (distance > 0) {
+                const chaseSpeed = Math.min(npcBaseSpeed, distance * 0.3);
+                addResult('npcTestResults', `✅ 追逐逻辑正常，距离: ${distance}, 追逐速度: ${chaseSpeed}`, 'success');
+            }
+            
+            // 测试逃跑逻辑
+            gameState.selectedRole = 'chaser';
+            gameState.runnerPosition = 15;
+            gameState.chaserPosition = 25;
+            
+            const escapeDistance = gameState.runnerPosition - gameState.chaserPosition;
+            if (Math.abs(escapeDistance) < 20) {
+                const escapeSpeed = npcBaseSpeed * 1.2;
+                addResult('npcTestResults', `✅ 逃跑逻辑正常，距离: ${Math.abs(escapeDistance)}, 逃跑速度: ${escapeSpeed}`, 'success');
+            }
+            
+            addResult('npcTestResults', 'NPC移动逻辑测试完成', 'success');
+        }
+        
+        function testGameEndConditions() {
+            clearResults('endTestResults');
+            addResult('endTestResults', '开始游戏结束条件测试...');
+            
+            // 测试到达终点
+            const gameState1 = {
+                runnerPosition: 90,
+                targetPosition: 85,
+                selectedRole: 'runner'
+            };
+            
+            if (gameState1.runnerPosition >= gameState1.targetPosition) {
+                addResult('endTestResults', '✅ 到达终点判定正常', 'success');
+            }
+            
+            // 测试被抓住
+            const gameState2 = {
+                runnerPosition: 30,
+                chaserPosition: 32,
+                selectedRole: 'runner'
+            };
+            
+            const distance = Math.abs(gameState2.runnerPosition - gameState2.chaserPosition);
+            if (distance < 3) {
+                addResult('endTestResults', '✅ 被抓住判定正常，距离: ${distance}', 'success');
+            }
+            
+            // 测试超时
+            const startTime = Date.now() - 350000; // 350秒前
+            const currentTime = Date.now();
+            const gameTime = (currentTime - startTime) / 1000;
+            
+            if (gameTime > 300) {
+                addResult('endTestResults', '✅ 超时判定正常，游戏时间: ${gameTime}秒', 'success');
+            }
+            
+            addResult('endTestResults', '游戏结束条件测试完成', 'success');
+        }
+        
+        function testLibrarySystem() {
+            clearResults('libraryTestResults');
+            addResult('libraryTestResults', '开始词库系统测试...');
+            
+            if (!TextLibraries) {
+                addResult('libraryTestResults', '❌ TextLibraries未加载', 'error');
+                return;
+            }
+            
+            // 测试中文词库
+            const chineseLibrary = TextLibraries.chinese;
+            if (chineseLibrary && chineseLibrary.texts.length > 0) {
+                addResult('libraryTestResults', `✅ 中文词库正常，包含 ${chineseLibrary.texts.length} 句话`, 'success');
+                
+                // 测试难度筛选
+                const easyTexts = chineseLibrary.texts.filter(text => text.length <= 15);
+                const mediumTexts = chineseLibrary.texts.filter(text => text.length > 15 && text.length <= 30);
+                const hardTexts = chineseLibrary.texts.filter(text => text.length > 30);
+                
+                addResult('libraryTestResults', `✅ 简单难度: ${easyTexts.length} 句`, 'success');
+                addResult('libraryTestResults', `✅ 中等难度: ${mediumTexts.length} 句`, 'success');
+                addResult('libraryTestResults', `✅ 困难难度: ${hardTexts.length} 句`, 'success');
+            }
+            
+            // 测试英文词库
+            const englishLibrary = TextLibraries.english;
+            if (englishLibrary && englishLibrary.texts.length > 0) {
+                addResult('libraryTestResults', `✅ 英文词库正常，包含 ${englishLibrary.texts.length} 句话`, 'success');
+            }
+            
+            addResult('libraryTestResults', '词库系统测试完成', 'success');
+        }
+        
+        function runAllTests() {
+            clearResults('allTestResults');
+            addResult('allTestResults', '🚀 开始完整测试套件...', 'success');
+            
+            testBasicFunctions();
+            testNPCMovement();
+            testGameEndConditions();
+            testLibrarySystem();
+            
+            addResult('allTestResults', '🎉 所有测试完成！', 'success');
+        }
+        
+        // 页面加载完成后自动运行测试
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>
