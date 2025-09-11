@@ -18,6 +18,7 @@ class TypingChaseGame {
             chaserProgress: document.getElementById('chaserProgress'),
             distanceValue: document.getElementById('distanceValue'),
             playerRole: document.getElementById('playerRole'),
+            currentLibrary: document.getElementById('currentLibrary'),
             gameStatus: document.getElementById('gameStatus'),
             resultTitle: document.getElementById('resultTitle'),
             resultMessage: document.getElementById('resultMessage'),
@@ -31,7 +32,9 @@ class TypingChaseGame {
         this.gameState = {
             selectedRole: null,
             selectedDifficulty: null,
+            selectedLibrary: null,
             isPlaying: false,
+            isComposing: false,
             runnerPosition: 10,
             chaserPosition: 5,
             targetPosition: 85,
@@ -44,19 +47,30 @@ class TypingChaseGame {
             accuracy: 100
         };
         
-        this.texts = [
-            "快速的棕色狐狸跳过懒狗",
-            "编程是一门艺术也是一门科学",
-            "天空中飘着朵朵白云",
-            "学习打字可以提高工作效率",
-            "春天来了花儿都开了",
-            "技术改变世界创新引领未来"
-        ];
-        
-        this.init();
+        // 等待词库加载
+        this.waitForTextLibraries();
+    }
+    
+    waitForTextLibraries() {
+        if (typeof TextLibraries !== 'undefined') {
+            this.init();
+        } else {
+            // 等待词库加载
+            setTimeout(() => this.waitForTextLibraries(), 100);
+        }
     }
     
     init() {
+        // 词库选择
+        document.querySelectorAll('.library-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.library-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.gameState.selectedLibrary = btn.dataset.library;
+                this.checkStartButton();
+            });
+        });
+        
         // 难度选择
         document.querySelectorAll('.difficulty-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -86,43 +100,93 @@ class TypingChaseGame {
         this.elements.typingInput.addEventListener('input', (e) => this.handleTyping(e));
         this.elements.typingInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 this.checkTextCompletion();
             }
+        });
+        this.elements.typingInput.addEventListener('compositionstart', (e) => {
+            this.gameState.isComposing = true;
+        });
+        this.elements.typingInput.addEventListener('compositionend', (e) => {
+            this.gameState.isComposing = false;
+            this.handleTyping(e);
         });
     }
     
     checkStartButton() {
-        if (this.gameState.selectedRole && this.gameState.selectedDifficulty) {
+        if (this.gameState.selectedRole && this.gameState.selectedDifficulty && this.gameState.selectedLibrary) {
             this.elements.startBtn.disabled = false;
         }
     }
     
     startGame() {
         this.gameState.isPlaying = true;
+        this.gameState.isComposing = false;
         this.gameState.runnerPosition = 10;
         this.gameState.chaserPosition = 5;
         this.gameState.startTime = Date.now();
         this.gameState.correctChars = 0;
         this.gameState.totalChars = 0;
+        this.gameState.wpm = 0;
+        this.gameState.accuracy = 100;
         
         this.showScreen('game');
         this.elements.playerRole.textContent = this.gameState.selectedRole === 'runner' ? '逃跑者' : '追逐者';
+        this.elements.currentLibrary.textContent = TextLibraries[this.gameState.selectedLibrary].name;
         this.elements.gameStatus.textContent = '游戏进行中';
+        
+        // 启用输入框
+        this.elements.typingInput.disabled = false;
+        this.elements.typingInput.value = '';
         
         this.generateNewText();
         this.updatePositions();
-        this.elements.typingInput.focus();
+        this.updateStats();
+        
+        // 确保输入框获得焦点，添加延迟以兼容不同浏览器
+        setTimeout(() => {
+            this.elements.typingInput.focus();
+            this.elements.typingInput.select();
+        }, 100);
     }
     
     generateNewText() {
-        this.gameState.currentText = this.texts[Math.floor(Math.random() * this.texts.length)];
+        if (!TextLibraries || !TextLibraries[this.gameState.selectedLibrary]) {
+            console.error('词库未正确加载');
+            this.gameState.currentText = '测试文本';
+        } else {
+            const library = TextLibraries[this.gameState.selectedLibrary];
+            const filteredTexts = this.getTextsByDifficulty(library.texts, this.gameState.selectedDifficulty);
+            
+            if (filteredTexts.length === 0) {
+                // 如果没有找到符合难度的文本，使用所有文本
+                this.gameState.currentText = library.texts[Math.floor(Math.random() * library.texts.length)];
+            } else {
+                this.gameState.currentText = filteredTexts[Math.floor(Math.random() * filteredTexts.length)];
+            }
+        }
+        
         this.gameState.typedText = '';
         this.elements.targetText.textContent = this.gameState.currentText;
         this.elements.typingInput.value = '';
     }
     
+    getTextsByDifficulty(texts, difficulty) {
+        if (!texts || texts.length === 0) return [];
+        
+        if (difficulty === 'easy') {
+            return texts.filter(text => text.length <= 15);
+        } else if (difficulty === 'medium') {
+            return texts.filter(text => text.length > 15 && text.length <= 30);
+        } else if (difficulty === 'hard') {
+            return texts.filter(text => text.length > 30);
+        }
+        
+        return texts;
+    }
+    
     handleTyping(e) {
-        if (!this.gameState.isPlaying) return;
+        if (!this.gameState.isPlaying || this.gameState.isComposing) return;
         
         const typed = e.target.value;
         this.gameState.typedText = typed;
@@ -145,13 +209,18 @@ class TypingChaseGame {
     }
     
     onTextComplete() {
-        const speed = Math.max(1, this.gameState.wpm / 20);
+        // 确保WPM有有效值
+        const speed = Math.max(1, (this.gameState.wpm || 0) / 20);
         
         if (this.gameState.selectedRole === 'runner') {
             this.gameState.runnerPosition += speed * 5;
         } else {
             this.gameState.chaserPosition += speed * 5;
         }
+        
+        // 重置输入统计
+        this.gameState.correctChars = 0;
+        this.gameState.totalChars = 0;
         
         this.updatePositions();
         this.checkGameEnd();
@@ -185,14 +254,30 @@ class TypingChaseGame {
     updateStats() {
         const timeElapsed = (Date.now() - this.gameState.startTime) / 1000 / 60; // 分钟
         const wordsTyped = this.gameState.correctChars / 5; // 假设每个单词5个字符
-        this.gameState.wpm = Math.round(wordsTyped / timeElapsed) || 0;
-        this.gameState.accuracy = Math.round((this.gameState.correctChars / this.gameState.totalChars) * 100) || 100;
+        
+        // 避免除零错误
+        if (timeElapsed > 0) {
+            this.gameState.wpm = Math.round(wordsTyped / timeElapsed);
+        } else {
+            this.gameState.wpm = 0;
+        }
+        
+        // 避免除零错误
+        if (this.gameState.totalChars > 0) {
+            this.gameState.accuracy = Math.round((this.gameState.correctChars / this.gameState.totalChars) * 100);
+        } else {
+            this.gameState.accuracy = 100;
+        }
         
         this.elements.wpm.textContent = this.gameState.wpm;
         this.elements.accuracy.textContent = this.gameState.accuracy;
     }
     
     checkGameEnd() {
+        // 防止位置超出边界
+        this.gameState.runnerPosition = Math.min(this.gameState.runnerPosition, 100);
+        this.gameState.chaserPosition = Math.min(this.gameState.chaserPosition, 100);
+        
         if (this.gameState.runnerPosition >= this.gameState.targetPosition) {
             this.endGame(this.gameState.selectedRole === 'runner' ? 'win' : 'lose');
         } else if (this.gameState.chaserPosition >= this.gameState.runnerPosition) {
@@ -202,6 +287,10 @@ class TypingChaseGame {
     
     endGame(result) {
         this.gameState.isPlaying = false;
+        
+        // 禁用输入框
+        this.elements.typingInput.disabled = true;
+        
         const gameTime = Math.round((Date.now() - this.gameState.startTime) / 1000);
         
         this.elements.finalWpm.textContent = this.gameState.wpm;
@@ -227,5 +316,8 @@ class TypingChaseGame {
 
 // 游戏初始化
 document.addEventListener('DOMContentLoaded', () => {
-    new TypingChaseGame();
+    // 防止重复初始化
+    if (!window.typingGame) {
+        window.typingGame = new TypingChaseGame();
+    }
 });

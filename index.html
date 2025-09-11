@@ -12,6 +12,24 @@
         <div id="startScreen" class="screen">
             <h1>打字追逐游戏</h1>
             
+            <div class="library-select">
+                <h2>选择词库</h2>
+                <div class="library-options">
+                    <button class="library-btn" data-library="chinese">
+                        <div class="library-icon">📚</div>
+                        <h3>中文词库</h3>
+                        <p>现代诗词和英文诗歌中文翻译</p>
+                        <span class="text-count">100+句</span>
+                    </button>
+                    <button class="library-btn" data-library="english">
+                        <div class="library-icon">🌐</div>
+                        <h3>English Library</h3>
+                        <p>English sentences, phrases and poetry</p>
+                        <span class="text-count">100+句</span>
+                    </button>
+                </div>
+            </div>
+            
             <div class="difficulty-select">
                 <h2>选择难度</h2>
                 <div class="difficulty-options">
@@ -100,6 +118,9 @@
                 <div class="role-info">
                     你的角色: <span id="playerRole">-</span>
                 </div>
+                <div class="library-info">
+                    词库: <span id="currentLibrary">-</span>
+                </div>
                 <div class="game-status">
                     状态: <span id="gameStatus">准备开始</span>
                 </div>
@@ -125,6 +146,7 @@
         </div>
     </div>
 
+    <script src="text-libraries.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

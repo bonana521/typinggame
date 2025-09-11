@@ -10,7 +10,8 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(gh repo view:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Read(//d/A1/**)"
     ],
     "deny": [],
     "ask": []

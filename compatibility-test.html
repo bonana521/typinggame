@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备兼容性测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .test-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            background: white;
+            color: #333;
+        }
+        .test-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+        .success { background: #28a745; }
+        .warning { background: #ffc107; color: #333; }
+        .error { background: #dc3545; }
+        .info { background: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 设备兼容性测试页面</h1>
+        
+        <div class="test-section">
+            <h2>📱 设备信息</h2>
+            <div class="info-panel">
+                <p><strong>用户代理:</strong> <span id="userAgent"></span></p>
+                <p><strong>平台:</strong> <span id="platform"></span></p>
+                <p><strong>语言:</strong> <span id="language"></span></p>
+                <p><strong>屏幕分辨率:</strong> <span id="screenResolution"></span></p>
+                <p><strong>窗口大小:</strong> <span id="windowSize"></span></p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>⌨️ 输入功能测试</h2>
+            <p>测试输入框是否能正常工作：</p>
+            <input type="text" id="testInput1" class="test-input" placeholder="请输入一些文字测试...">
+            <input type="text" id="testInput2" class="test-input" placeholder="测试中文输入法：你好世界">
+            <textarea id="testTextarea" class="test-input" rows="4" placeholder="测试多行输入..."></textarea>
+            <div class="info-panel">
+                <p><strong>输入事件状态:</strong></p>
+                <div id="inputEvents"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎮 游戏功能测试</h2>
+            <button id="testGameBtn" class="test-input" style="width: auto; padding: 10px 20px;">测试游戏启动</button>
+            <div class="info-panel">
+                <p><strong>测试结果:</strong></p>
+                <div id="gameTestResults"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 浏览器功能检测</h2>
+            <div class="info-panel">
+                <div id="browserFeatures"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 测试结果</h2>
+            <div class="info-panel">
+                <p><strong>兼容性状态:</strong></p>
+                <div id="testResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 设备信息检测
+        function detectDeviceInfo() {
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            document.getElementById('platform').textContent = navigator.platform;
+            document.getElementById('language').textContent = navigator.language;
+            document.getElementById('screenResolution').textContent = `${screen.width}x${screen.height}`;
+            document.getElementById('windowSize').textContent = `${window.innerWidth}x${window.innerHeight}`;
+        }
+
+        // 输入事件测试
+        function testInputEvents() {
+            const testInput1 = document.getElementById('testInput1');
+            const testInput2 = document.getElementById('testInput2');
+            const testTextarea = document.getElementById('testTextarea');
+            const eventsDiv = document.getElementById('inputEvents');
+            
+            const events = ['focus', 'blur', 'input', 'keydown', 'keyup', 'compositionstart', 'compositionend'];
+            const eventLog = {};
+            
+            events.forEach(event => {
+                eventLog[event] = false;
+            });
+            
+            function addEventListeners(element, elementName) {
+                events.forEach(eventType => {
+                    element.addEventListener(eventType, (e) => {
+                        eventLog[eventType] = true;
+                        updateEventDisplay();
+                    });
+                });
+            }
+            
+            addEventListeners(testInput1, '输入框1');
+            addEventListeners(testInput2, '输入框2');
+            addEventListeners(testTextarea, '文本域');
+            
+            function updateEventDisplay() {
+                let html = '';
+                events.forEach(event => {
+                    const status = eventLog[event] ? 'success' : 'warning';
+                    const text = eventLog[event] ? '✓' : '✗';
+                    html += `<span class="status ${status}">${event}: ${text}</span>`;
+                });
+                eventsDiv.innerHTML = html;
+            }
+            
+            updateEventDisplay();
+        }
+
+        // 浏览器功能检测
+        function testBrowserFeatures() {
+            const features = {
+                'File API': typeof File !== 'undefined',
+                'Local Storage': typeof localStorage !== 'undefined',
+                'Session Storage': typeof sessionStorage !== 'undefined',
+                'Geolocation': typeof navigator.geolocation !== 'undefined',
+                'Web Workers': typeof Worker !== 'undefined',
+                'Canvas': typeof document.createElement('canvas').getContext !== 'undefined',
+                'Audio': typeof Audio !== 'undefined',
+                'Video': typeof document.createElement('video').canPlayType !== 'undefined',
+                'Touch Events': 'ontouchstart' in window,
+                'Pointer Events': typeof window.PointerEvent !== 'undefined'
+            };
+            
+            let html = '';
+            for (const [feature, supported] of Object.entries(features)) {
+                const status = supported ? 'success' : 'error';
+                const text = supported ? '支持' : '不支持';
+                html += `<div><span class="status ${status}">${feature}: ${text}</span></div>`;
+            }
+            document.getElementById('browserFeatures').innerHTML = html;
+        }
+
+        // 游戏功能测试
+        function testGameFeatures() {
+            const testBtn = document.getElementById('testGameBtn');
+            const resultsDiv = document.getElementById('gameTestResults');
+            
+            testBtn.addEventListener('click', () => {
+                const tests = {
+                    'DOM Elements': document.getElementById('typingInput') !== null,
+                    'Event Listeners': typeof window.addEventListener !== 'undefined',
+                    'Timers': typeof setTimeout !== 'undefined',
+                    'JSON Support': typeof JSON !== 'undefined',
+                    'CSS Transforms': typeof document.body.style.transform !== 'undefined'
+                };
+                
+                let html = '';
+                for (const [test, passed] of Object.entries(tests)) {
+                    const status = passed ? 'success' : 'error';
+                    const text = passed ? '通过' : '失败';
+                    html += `<div><span class="status ${status}">${test}: ${text}</span></div>`;
+                }
+                resultsDiv.innerHTML = html;
+            });
+        }
+
+        // 测试结果汇总
+        function generateTestResults() {
+            const resultsDiv = document.getElementById('testResults');
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            let compatibility = {
+                safari: /safari/.test(userAgent) && !/chrome/.test(userAgent),
+                chrome: /chrome/.test(userAgent),
+                firefox: /firefox/.test(userAgent),
+                edge: /edge/.test(userAgent),
+                mobile: /mobile|android|iphone|ipad/.test(userAgent),
+                mac: /macintosh|mac os x/.test(userAgent),
+                windows: /windows/.test(userAgent)
+            };
+            
+            let html = '';
+            for (const [device, detected] of Object.entries(compatibility)) {
+                const status = detected ? 'info' : 'warning';
+                const text = detected ? '检测到' : '未检测到';
+                html += `<div><span class="status ${status}">${device}: ${text}</span></div>`;
+            }
+            resultsDiv.innerHTML = html;
+        }
+
+        // 初始化所有测试
+        function initializeTests() {
+            detectDeviceInfo();
+            testInputEvents();
+            testBrowserFeatures();
+            testGameFeatures();
+            generateTestResults();
+        }
+
+        // 页面加载完成后执行测试
+        document.addEventListener('DOMContentLoaded', initializeTests);
+        
+        // 窗口大小改变时更新信息
+        window.addEventListener('resize', detectDeviceInfo);
+    </script>
+</body>
+</html>

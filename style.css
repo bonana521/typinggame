@@ -514,3 +514,91 @@ body {
 .character.won .character-sprite {
     animation: pulse 1s ease-in-out infinite;
 }
+
+/* 词库选择样式 */
+.library-select {
+    margin-top: 20px;
+}
+
+.library-select h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.library-options {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.library-btn {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 200px;
+    max-width: 250px;
+}
+
+.library-btn:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.library-btn.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.library-btn .library-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.library-btn h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    color: inherit;
+}
+
+.library-btn p {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+    color: inherit;
+    line-height: 1.4;
+}
+
+.library-btn .text-count {
+    font-size: 0.8em;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 4px 12px;
+    border-radius: 12px;
+    color: #667eea;
+    font-weight: bold;
+}
+
+.library-btn.selected .text-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.library-info {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.library-info span {
+    color: #667eea;
+    font-weight: bold;
+}
