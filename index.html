@@ -74,8 +74,11 @@
         <div id="gameScreen" class="screen hidden">
             <div class="game-area">
                 <div class="game-map">
-                    <!-- 简单的2D地图 -->
-                    <div class="track">
+                    <!-- 2D Canvas地图 -->
+                    <canvas id="gameCanvas" width="800" height="400"></canvas>
+                    
+                    <!-- 保留原有UI元素但隐藏 -->
+                    <div class="track" style="display: none;">
                         <div class="character" id="runner">
                             <div class="character-sprite">🏃</div>
                             <div class="progress-bar">
@@ -123,6 +126,9 @@
                 </div>
                 <div class="game-status">
                     状态: <span id="gameStatus">准备开始</span>
+                </div>
+                <div class="game-controls">
+                    <button id="backToMenuBtn" class="secondary-btn" style="display: none;">返回主菜单</button>
                 </div>
             </div>
         </div>
